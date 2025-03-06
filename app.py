@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Initialize Flask app and database
-app = Flask(__name__, static_folder='static/dist', static_url_path='')
+app = Flask(__name__, static_folder='static/dist')
 app.secret_key = os.environ.get("SESSION_SECRET")
 
 # Database configuration
@@ -30,20 +30,26 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
+
 # Model definition
 class AudioRecording(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime,
+                           nullable=False,
+                           default=datetime.utcnow)
     file_size = db.Column(db.Integer)  # Size in bytes
 
-@app.route('/', defaults={'path': ''})
+
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html')
+
+
 @app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+def static_file(path):
+    return send_from_directory(app.static_folder, path)
+
 
 @app.route('/upload', methods=['POST'])
 def upload_audio():
@@ -67,14 +73,13 @@ def upload_audio():
         file_size = os.path.getsize(filepath)
 
         # Create database record
-        recording = AudioRecording(
-            filename=secure_name,
-            file_size=file_size
-        )
+        recording = AudioRecording(filename=secure_name, file_size=file_size)
         db.session.add(recording)
         db.session.commit()
 
-        logger.info(f"Successfully saved recording: {secure_name}, size: {file_size} bytes")
+        logger.info(
+            f"Successfully saved recording: {secure_name}, size: {file_size} bytes"
+        )
         return jsonify({
             'message': 'Audio uploaded successfully',
             'filename': secure_name
@@ -83,6 +88,7 @@ def upload_audio():
     except Exception as e:
         logger.error(f"Error uploading audio: {str(e)}")
         return jsonify({'error': 'Server error while uploading audio'}), 500
+
 
 # Create database tables
 with app.app_context():

@@ -1,13 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMicrophone, faStop } from "@fortawesome/free-solid-svg-icons";
 
 const AudioRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
-  const [timer, setTimer] = useState('00:00');
-  const [status, setStatus] = useState('Ready to record');
-  const [error, setError] = useState('');
-  
+  const [timer, setTimer] = useState("00:00");
+  const [status, setStatus] = useState("Ready to record");
+  const [error, setError] = useState("");
+
   const mediaRecorder = useRef(null);
   const startTime = useRef(null);
   const timerInterval = useRef(null);
@@ -21,9 +21,9 @@ const AudioRecorder = () => {
       const minutes = Math.floor(seconds / 60);
       const remainingSeconds = seconds % 60;
       setTimer(
-        `${minutes.toString().padStart(2, '0')}:${remainingSeconds
+        `${minutes.toString().padStart(2, "0")}:${remainingSeconds
           .toString()
-          .padStart(2, '0')}`
+          .padStart(2, "0")}`,
       );
     }, 1000);
   };
@@ -31,7 +31,7 @@ const AudioRecorder = () => {
   const stopTimer = () => {
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
-      setTimer('00:00');
+      setTimer("00:00");
     }
   };
 
@@ -46,17 +46,19 @@ const AudioRecorder = () => {
       };
 
       mediaRecorder.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
         // await uploadRecording(audioBlob);
       };
 
       mediaRecorder.current.start();
       setIsRecording(true);
-      setStatus('Recording...');
+      setStatus("Recording...");
       startTimer();
     } catch (error) {
-      setError('Could not access microphone. Please ensure microphone permissions are granted.');
-      console.error('Error accessing microphone:', error);
+      setError(
+        "Could not access microphone. Please ensure microphone permissions are granted.",
+      );
+      console.error("Error accessing microphone:", error);
     }
   };
 
@@ -65,7 +67,7 @@ const AudioRecorder = () => {
       mediaRecorder.current.stop();
       mediaRecorder.current.stream.getTracks().forEach((track) => track.stop());
       setIsRecording(false);
-      setStatus('Processing recording...');
+      setStatus("Processing recording...");
       stopTimer();
     }
   };
@@ -97,18 +99,16 @@ const AudioRecorder = () => {
   return (
     <div>
       <div className="timer">{timer}</div>
-      
+      asdfsdafsfd
       <button
-        className={`record-button ${isRecording ? 'recording' : ''}`}
+        className={`record-button ${isRecording ? "recording" : ""}`}
         onClick={isRecording ? stopRecording : startRecording}
       >
         <FontAwesomeIcon icon={isRecording ? faStop : faMicrophone} />
       </button>
-      
       <div className="status-indicator">{status}</div>
-      
       {error && (
-        <div className="error-message" style={{ display: 'block' }}>
+        <div className="error-message" style={{ display: "block" }}>
           {error}
         </div>
       )}
