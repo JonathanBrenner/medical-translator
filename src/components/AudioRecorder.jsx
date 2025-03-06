@@ -49,7 +49,7 @@ const AudioRecorder = () => {
 
       mediaRecorder.current.onstop = async () => {
         const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
-        await uploadRecording(audioBlob);
+        // await uploadRecording(audioBlob);
       };
 
       mediaRecorder.current.start();
@@ -76,21 +76,21 @@ const AudioRecorder = () => {
 
   const uploadRecording = async (audioBlob) => {
     try {
-      setStatus('Uploading recording...');
+      setStatus("Uploading recording...");
       const response = await uploadAudio(audioBlob);
-      setStatus('Recording uploaded successfully!');
-      setTimeout(() => setStatus('Ready to record'), 3000);
+      setStatus("Recording uploaded successfully!");
+      setTimeout(() => setStatus("Ready to record"), 3000);
     } catch (error) {
-      setError('Failed to upload recording. Please try again.');
-      setStatus('Ready to record');
-      console.error('Upload error:', error);
+      setError("Failed to upload recording. Please try again.");
+      setStatus("Ready to record");
+      console.error("Upload error:", error);
     }
   };
 
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const tokenData = await getOpenAIToken('en');
+        const tokenData = await getOpenAIToken("en");
         setToken(tokenData);
       } catch (error) {
         setError("Error fetching API token.");
