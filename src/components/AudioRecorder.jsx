@@ -47,7 +47,7 @@ const AudioRecorder = () => {
 
       mediaRecorder.current.onstop = async () => {
         const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
-        await uploadRecording(audioBlob);
+        // await uploadRecording(audioBlob);
       };
 
       mediaRecorder.current.start();
@@ -70,29 +70,29 @@ const AudioRecorder = () => {
     }
   };
 
-  const uploadRecording = async (audioBlob) => {
-    const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.webm');
+  // const uploadRecording = async (audioBlob) => {
+  //   const formData = new FormData();
+  //   formData.append('audio', audioBlob, 'recording.webm');
 
-    try {
-      setStatus('Uploading recording...');
-      const response = await fetch('/upload', {
-        method: 'POST',
-        body: formData,
-      });
+  //   try {
+  //     setStatus('Uploading recording...');
+  //     const response = await fetch('/upload', {
+  //       method: 'POST',
+  //       body: formData,
+  //     });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
 
-      setStatus('Recording uploaded successfully!');
-      setTimeout(() => setStatus('Ready to record'), 3000);
-    } catch (error) {
-      setError('Failed to upload recording. Please try again.');
-      setStatus('Ready to record');
-      console.error('Upload error:', error);
-    }
-  };
+  //     setStatus('Recording uploaded successfully!');
+  //     setTimeout(() => setStatus('Ready to record'), 3000);
+  //   } catch (error) {
+  //     setError('Failed to upload recording. Please try again.');
+  //     setStatus('Ready to record');
+  //     console.error('Upload error:', error);
+  //   }
+  // };
 
   return (
     <div>
