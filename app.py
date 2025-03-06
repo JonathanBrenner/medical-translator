@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Initialize Flask app and database
-app = Flask(__name__, static_folder='static/dist')
+app = Flask(__name__, static_folder='static/dist', static_url_path='')
 app.secret_key = os.environ.get("SESSION_SECRET")
 
 # Database configuration
@@ -37,13 +37,13 @@ class AudioRecording(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     file_size = db.Column(db.Integer)  # Size in bytes
 
-@app.route('/')
-def index():
-    return send_from_directory(app.static_folder, 'index.html')
-
+@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def static_file(path):
-    return send_from_directory(app.static_folder, path)
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_audio():
