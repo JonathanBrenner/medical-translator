@@ -21,6 +21,13 @@ body {
   text-align: center;
 }
 
+.app-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: var(--spacing-base);
+  border-radius: 8px;
+}
+
 .record-button {
   width: 80px;
   height: 80px;
@@ -82,12 +89,12 @@ body {
   .recorder-container {
     padding: calc(var(--spacing-base) / 2);
   }
-  
+
   .record-button {
     width: 60px;
     height: 60px;
   }
-  
+
   .timer {
     font-size: 1.5rem;
   }
