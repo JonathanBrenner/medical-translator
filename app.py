@@ -4,15 +4,13 @@ import logging
 from werkzeug.utils import secure_filename
 import uuid
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import declarative_base
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Configure database
-Base = declarative_base()
-db = SQLAlchemy(model_class=Base)
+# Initialize Flask app and database
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET")
 
@@ -22,7 +20,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
-db.init_app(app)
+db = SQLAlchemy(app)
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
@@ -31,6 +29,13 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Model definition
+class AudioRecording(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    file_size = db.Column(db.Integer)  # Size in bytes
 
 @app.route('/')
 def index():
@@ -58,7 +63,6 @@ def upload_audio():
         file_size = os.path.getsize(filepath)
 
         # Create database record
-        from models import AudioRecording
         recording = AudioRecording(
             filename=secure_name,
             file_size=file_size
@@ -66,6 +70,7 @@ def upload_audio():
         db.session.add(recording)
         db.session.commit()
 
+        logger.info(f"Successfully saved recording: {secure_name}, size: {file_size} bytes")
         return jsonify({
             'message': 'Audio uploaded successfully',
             'filename': secure_name
