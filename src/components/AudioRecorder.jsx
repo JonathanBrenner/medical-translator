@@ -5,66 +5,37 @@ import { getOpenAIToken, uploadAudio } from "../api";
 
 const AudioRecorder = () => {
   const [error, setError] = useState("");
-  const [tokenEn, setTokenEn] = useState(null);
-  const [tokenEs, setTokenEs] = useState(null);
-  const [userMedia, setUserMedia] = useState(null);
-  const [offer, setOffer] = useState(null);
-  const [sdpResponse, setSdpResponse] = useState(null);
-  const [answer, setAnswer] = useState(null);
+  // const [tokenEn, setTokenEn] = useState(null);
+  // const [tokenEs, setTokenEs] = useState(null);
+  // const [userMedia, setUserMedia] = useState(null);
+  // const [offer, setOffer] = useState(null);
+  // const [sdpResponse, setSdpResponse] = useState(null);
+  // const [answer, setAnswer] = useState(null);
 
-  const peerConnection = useRef(null);
-
-  useEffect(() => {
-    const fetchTokenEn = async () => {
-      const tokenData = await getOpenAIToken("en");
-      setTokenEn(tokenData);
-    };
-
-    fetchTokenEn();
-  }, []);
+  // const peerConnection = useRef(null);
 
   useEffect(() => {
-    const fetchTokenEs = async () => {
-      const tokenData = await getOpenAIToken("es");
-      setTokenEs(tokenData);
-    };
+    const setupAudioConnection = async () => {
+      const tokenEn = await getOpenAIToken("en");
+      const EPHEMERAL_KEY = tokenEn.value;
+      // const tokenEs = await getOpenAIToken("es");
 
-    fetchTokenEs();
-  }, [tokenEn]);
+      const pc = new RTCPeerConnection();
+      const audioEl = document.createElement("audio");
+      audioEl.autoplay = true;
+      pc.ontrack = (e) => (audioEl.srcObject = e.streams[0]);
 
-  useEffect(() => {
-    const pc = new RTCPeerConnection();
-    const audioEl = document.createElement("audio");
-    audioEl.autoplay = true;
-    pc.ontrack = (e) => (audioEl.srcObject = e.streams[0]);
-    peerConnection.current = pc;
-
-    const getUserMedia = async () => {
       const ms = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setUserMedia(ms);
-    };
-    getUserMedia();
-  }, [tokenEs]);
 
-  useEffect(() => {
-    peerConnection.current.addTrack(userMedia.getTracks()[0]);
-    const dc = peerConnection.current.createDataChannel("oai-events");
-    dc.addEventListener("message", (e) => {
-      console.log(e);
-    });
+      pc.addTrack(ms.getTracks()[0]);
+      const dc = pc.createDataChannel("oai-events");
+      dc.addEventListener("message", (e) => {
+        console.log(e);
+      });
 
-    const getOffer = async () => {
-      const offer = await peerConnection.current.createOffer();
-      setOffer(offer);
-    };
-    getOffer();
-  }, [userMedia]);
-
-  useEffect(() => {
-    const baseUrl = "https://api.openai.com/v1/realtime";
-    const model = "gpt-4o-mini-realtime-preview-2024-12-17";
-
-    const getSdpResponse = async () => {
+      const offer = await pc.createOffer();
+      const baseUrl = "https://api.openai.com/v1/realtime";
+      const model = "gpt-4o-mini-realtime-preview-2024-12-17";
       const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
         method: "POST",
         body: offer.sdp,
@@ -73,26 +44,16 @@ const AudioRecorder = () => {
           "Content-Type": "application/sdp",
         },
       });
-      setSdpResponse(sdpResponse);
-    };
-    getSdpResponse();
-  }, [offer]);
 
-  useEffect(() => {
-    const getAnswer = async () => {
       const answer = {
         type: "answer",
         sdp: await sdpResponse.text(),
       };
-      setAnswer(answer);
+      await pc.setRemoteDescription(answer);
     };
 
-    getAnswer();
-  }, [sdpResponse]);
-
-  useEffect(() => {
-    peerConnection.current.setRemoteDescription(answer);
-  }, [answer]);
+    setupAudioConnection();
+  }, []);
 
   return (
     <div>
