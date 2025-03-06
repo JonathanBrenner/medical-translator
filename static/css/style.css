@@ -1,0 +1,95 @@
+:root {
+    --primary-color: #2196F3;
+    --secondary-color: #FF4081;
+    --background-color: #FFFFFF;
+    --text-color: #333333;
+    --status-color: #4CAF50;
+    --spacing-base: 16px;
+}
+
+body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.recorder-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-base);
+    text-align: center;
+}
+
+.record-button {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: var(--spacing-base) auto;
+}
+
+.record-button:hover {
+    transform: scale(1.05);
+    background-color: var(--secondary-color);
+}
+
+.record-button.recording {
+    background-color: var(--secondary-color);
+    animation: pulse 2s infinite;
+}
+
+.status-indicator {
+    margin: var(--spacing-base) 0;
+    font-weight: 500;
+    color: var(--status-color);
+}
+
+.timer {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: var(--spacing-base) 0;
+}
+
+.error-message {
+    color: #f44336;
+    margin: var(--spacing-base) 0;
+    padding: var(--spacing-base);
+    border-radius: 4px;
+    background-color: rgba(244, 67, 54, 0.1);
+    display: none;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .recorder-container {
+        padding: calc(var(--spacing-base) / 2);
+    }
+    
+    .record-button {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .timer {
+        font-size: 1.5rem;
+    }
+}
