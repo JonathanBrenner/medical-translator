@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone, faStop } from "@fortawesome/free-solid-svg-icons";
+import { getOpenAIToken, uploadAudio } from "../api";
 
 const AudioRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -48,7 +49,7 @@ const AudioRecorder = () => {
 
       mediaRecorder.current.onstop = async () => {
         const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
-        // await uploadRecording(audioBlob);
+        await uploadRecording(audioBlob);
       };
 
       mediaRecorder.current.start();
@@ -73,48 +74,30 @@ const AudioRecorder = () => {
     }
   };
 
-  // const uploadRecording = async (audioBlob) => {
-  //   const formData = new FormData();
-  //   formData.append('audio', audioBlob, 'recording.webm');
-
-  //   try {
-  //     setStatus('Uploading recording...');
-  //     const response = await fetch('/upload', {
-  //       method: 'POST',
-  //       body: formData,
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
-
-  //     setStatus('Recording uploaded successfully!');
-  //     setTimeout(() => setStatus('Ready to record'), 3000);
-  //   } catch (error) {
-  //     setError('Failed to upload recording. Please try again.');
-  //     setStatus('Ready to record');
-  //     console.error('Upload error:', error);
-  //   }
-  // };
+  const uploadRecording = async (audioBlob) => {
+    try {
+      setStatus('Uploading recording...');
+      const response = await uploadAudio(audioBlob);
+      setStatus('Recording uploaded successfully!');
+      setTimeout(() => setStatus('Ready to record'), 3000);
+    } catch (error) {
+      setError('Failed to upload recording. Please try again.');
+      setStatus('Ready to record');
+      console.error('Upload error:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const response = await fetch("/token/en/");
-        if (response.ok) {
-          const data = await response.json();
-          setToken(data.token);
-        } else {
-          setError("Failed to fetch API token.");
-        }
+        const tokenData = await getOpenAIToken('en');
+        setToken(tokenData);
       } catch (error) {
         setError("Error fetching API token.");
-        console.error("Error fetching API token:", error);
       }
     };
 
     fetchToken();
-    console.log(token);
   }, []);
 
   return (

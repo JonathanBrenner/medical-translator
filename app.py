@@ -92,43 +92,43 @@ def get_openai_token(language: str):
         return jsonify({'error': 'Server error while retrieving token'}), 500
 
 
-# @app.route('/upload', methods=['POST'])
-# def upload_audio():
-#     try:
-#         if 'audio' not in request.files:
-#             return jsonify({'error': 'No audio file provided'}), 400
+@app.route('/upload', methods=['POST'])
+def upload_audio():
+    try:
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No audio file provided'}), 400
 
-#         audio_file = request.files['audio']
-#         if audio_file.filename == '':
-#             return jsonify({'error': 'No selected file'}), 400
+        audio_file = request.files['audio']
+        if audio_file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
 
-#         # Generate unique filename
-#         filename = f"{uuid.uuid4()}.webm"
-#         secure_name = secure_filename(filename)
+        # Generate unique filename
+        filename = f"{uuid.uuid4()}.webm"
+        secure_name = secure_filename(filename)
 
-#         # Save the file
-#         filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_name)
-#         audio_file.save(filepath)
+        # Save the file
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_name)
+        audio_file.save(filepath)
 
-#         # Get file size
-#         file_size = os.path.getsize(filepath)
+        # Get file size
+        file_size = os.path.getsize(filepath)
 
-#         # Create database record
-#         recording = AudioRecording(filename=secure_name, file_size=file_size)
-#         db.session.add(recording)
-#         db.session.commit()
+        # Create database record
+        recording = AudioRecording(filename=secure_name, file_size=file_size)
+        db.session.add(recording)
+        db.session.commit()
 
-#         logger.info(
-#             f"Successfully saved recording: {secure_name}, size: {file_size} bytes"
-#         )
-#         return jsonify({
-#             'message': 'Audio uploaded successfully',
-#             'filename': secure_name
-#         }), 200
+        logger.info(
+            f"Successfully saved recording: {secure_name}, size: {file_size} bytes"
+        )
+        return jsonify({
+            'message': 'Audio uploaded successfully',
+            'filename': secure_name
+        }), 200
 
-#     except Exception as e:
-#         logger.error(f"Error uploading audio: {str(e)}")
-#         return jsonify({'error': 'Server error while uploading audio'}), 500
+    except Exception as e:
+        logger.error(f"Error uploading audio: {str(e)}")
+        return jsonify({'error': 'Server error while uploading audio'}), 500
 
 # Create database tables
 with app.app_context():
