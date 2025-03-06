@@ -1,18 +1,17 @@
 import os
-from flask import Flask, render_template, request, jsonify
-import logging
+from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import uuid
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import secrets
+import logging
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Initialize Flask app and database
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static/dist')
 app.secret_key = os.environ.get("SESSION_SECRET")
 
 # Database configuration
@@ -40,30 +39,11 @@ class AudioRecording(db.Model):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/api/token', methods=['GET'])
-def get_openai_token():
-    try:
-        # Check for the API key in environment variables
-        api_key = os.environ.get("OPENAI_API_KEY")
-        
-        if not api_key:
-            # For security, we'll return a generic error rather than specific details
-            return jsonify({'error': 'API key not configured'}), 500
-            
-        # Generate a temporary session token (this is just a demo)
-        # In a production app, you would implement proper authentication
-        session_token = secrets.token_hex(16)
-            
-        return jsonify({
-            'token': api_key,
-            'session_id': session_token,
-            'expires_in': 3600  # Token expires in 1 hour
-        }), 200
-    except Exception as e:
-        logger.error(f"Error providing API token: {str(e)}")
-        return jsonify({'error': 'Server error while retrieving token'}), 500
+@app.route('/<path:path>')
+def static_file(path):
+    return send_from_directory(app.static_folder, path)
 
 @app.route('/upload', methods=['POST'])
 def upload_audio():
