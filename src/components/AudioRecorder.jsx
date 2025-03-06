@@ -7,6 +7,7 @@ const AudioRecorder = () => {
   const [timer, setTimer] = useState("00:00");
   const [status, setStatus] = useState("Ready to record");
   const [error, setError] = useState("");
+  const [token, setToken] = useState(null);
 
   const mediaRecorder = useRef(null);
   const startTime = useRef(null);
@@ -95,6 +96,26 @@ const AudioRecorder = () => {
   //     console.error('Upload error:', error);
   //   }
   // };
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const response = await fetch("/token/en/");
+        if (response.ok) {
+          const data = await response.json();
+          setToken(data.token);
+        } else {
+          setError("Failed to fetch API token.");
+        }
+      } catch (error) {
+        setError("Error fetching API token.");
+        console.error("Error fetching API token:", error);
+      }
+    };
+
+    fetchToken();
+    console.log(token);
+  }, []);
 
   return (
     <div>

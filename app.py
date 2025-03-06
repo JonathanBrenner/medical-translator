@@ -5,6 +5,7 @@ import uuid
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import logging
+import requests
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -51,7 +52,7 @@ def static_file(path):
     return send_from_directory(app.static_folder, path)
 
 
-@app.route('/token/<str:language>/', methods=['GET'])
+@app.route('/token/<language>/', methods=['GET'])
 def get_openai_token(language: str):
     try:
         # Check for the API key in environment variables
