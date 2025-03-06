@@ -99,7 +99,6 @@ const AudioRecorder = () => {
   return (
     <div>
       <div className="timer">{timer}</div>
-      asdfsdafsfd
       <button
         className={`record-button ${isRecording ? "recording" : ""}`}
         onClick={isRecording ? stopRecording : startRecording}
