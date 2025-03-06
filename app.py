@@ -22,13 +22,10 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 db = SQLAlchemy(app)
 
-# Configure upload folders
+# Configure upload folder
 UPLOAD_FOLDER = 'uploads'
-ASSETS_FOLDER = 'attached_assets'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-if not os.path.exists(ASSETS_FOLDER):
-    os.makedirs(ASSETS_FOLDER)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -47,10 +44,6 @@ def index():
 @app.route('/<path:path>')
 def static_file(path):
     return send_from_directory(app.static_folder, path)
-
-@app.route('/assets/<path:filename>')
-def serve_asset(filename):
-    return send_from_directory(ASSETS_FOLDER, filename)
 
 @app.route('/upload', methods=['POST'])
 def upload_audio():
