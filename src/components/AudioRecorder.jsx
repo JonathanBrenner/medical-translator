@@ -3,16 +3,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone, faStop } from "@fortawesome/free-solid-svg-icons";
 import { getOpenAIToken, uploadAudio } from "../api";
 
+let didInit = false;
+
 const AudioRecorder = () => {
   const [error, setError] = useState("");
-  // const [tokenEn, setTokenEn] = useState(null);
-  // const [tokenEs, setTokenEs] = useState(null);
-  // const [userMedia, setUserMedia] = useState(null);
-  // const [offer, setOffer] = useState(null);
-  // const [sdpResponse, setSdpResponse] = useState(null);
-  // const [answer, setAnswer] = useState(null);
-
-  // const peerConnection = useRef(null);
 
   useEffect(() => {
     const setupAudioConnection = async () => {
@@ -31,9 +25,12 @@ const AudioRecorder = () => {
       const dc = pc.createDataChannel("oai-events");
       dc.addEventListener("message", (e) => {
         console.log(e);
+        const realtimeEvent = JSON.parse(e.data);
       });
 
       const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
       const baseUrl = "https://api.openai.com/v1/realtime";
       const model = "gpt-4o-mini-realtime-preview-2024-12-17";
       const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
@@ -51,8 +48,10 @@ const AudioRecorder = () => {
       };
       await pc.setRemoteDescription(answer);
     };
-
-    setupAudioConnection();
+    if (!didInit) {
+      setupAudioConnection();
+      didInit = true;
+    }
   }, []);
 
   return (

@@ -31,6 +31,10 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
+en_prompt = "You are a helpful translator in a doctor's office. Provide a simple translation of the message spoken by the user in English into Spanish. Focus on making the language as clear and simple as possible. Do not respond to any of the messages, only translate them into Spanish."
+
+es_prompt = "Eres un traductor útil en una consulta médica. Proporciona una traducción sencilla del mensaje hablado por el usuario en español al inglés. Enfócate en hacer el lenguaje lo más claro y simple posible. No respondas a ninguno de los mensajes, solo tradúcelos al inglés."
+
 
 # Model definition
 class AudioRecording(db.Model):
@@ -76,6 +80,11 @@ def get_openai_token(language: str):
         # "tools": None,  # TODO
         "temperature": 0.6  # minumum
     }
+    if language == "en":
+        prompt = en_prompt
+    else:
+        prompt = es_prompt
+    data["instructions"] = prompt
     response = requests.post(
         "https://api.openai.com/v1/realtime/sessions",
         headers=headers,
